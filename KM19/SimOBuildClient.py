@@ -53,8 +53,8 @@ class SimOBuildClient:
         Send the database size to the server
         """
         self.byteOfCom = 1024
-        #self.tcpSoc0 = client.tcpClient(client.Addr0, client.Port0, self.byteOfCom)
-        #self.tcpSoc0.sendMessage(str(self.N))
+        self.tcpSoc0 = client.tcpClient(client.Addr0, client.Port0, self.byteOfCom)
+        self.tcpSoc0.sendMessage(str(self.N))
 
         """
         The overhead
@@ -159,16 +159,12 @@ class SimOBuildClient:
         self.tcpSoc0.Bandwidth = 0
         self.tcpSoc0.Rounds = 0
         
-        #print((self.N,lev,0))
-        #print(2**logTabLen)
         
         self.bitonicMerge(2**logTabLen,0,2**logTabLen,1,0)
         
         tempCount = 0
         tempBinId = 0
-        #pbar = tqdm(total=2**logTabLen)
-        #print(2**logTabLen)
-        #bbTT = time.time()
+
         for ii in range(2**logTabLen):
             tempAddr, binId, eleType, excessOrNot = self.tcpSoc0.receiveMessage().split( )
             if tempBinId==int(binId):
@@ -182,33 +178,21 @@ class SimOBuildClient:
                 tempCount = 1
                 tempBinId = int(binId)
             self.tcpSoc0.sendMessage(str(tempAddr)+" "+str(binId)+" "+str(eleType)+" "+str(excessOrNot))
-            #pbar.update(math.ceil((ii+1)/(2**logTabLen)))
         self.bitonicMerge(2**logTabLen,0,2**logTabLen,1,1)
 
         """
         Construct the second table
         """
-        #print(2**logTabLen-sizeEachBin*binNum)
-        #pbar = tqdm(total=2**logTabLen-sizeEachBin*binNum)
-        #bbTT = time.time()
         for ii in range(sizeEachBin*binNum,2**logTabLen):
             tempAddr, newBinId, eleType, excessOrNot = self.tcpSoc0.receiveMessage( ).split( )
             if eleType==SimOBuildClient.RealElementFlag:
                 newBinId = computePosOfHash(scretKey1,tempAddr,binNum)
             self.tcpSoc0.sendMessage(str(tempAddr)+" "+str(newBinId)+" "+str(eleType)+" "+str(excessOrNot))
-            #pbar.update(math.ceil((ii+1)/(2**logTabLen-sizeEachBin*binNum)))
-        #print((self.N,lev,2))
-        #eeTT = time.time()
-        #print(eeTT-bbTT, simOBClient.tcpSoc0.Bandwidth,((simOBClient.tcpSoc0.Rounds)/2))
-        #self.tcpSoc0.Bandwidth = 0
-        #self.tcpSoc0.Rounds = 0
+
         self.bitonicMerge(2**logTabLen,0,2**logTabLen,1,0)
 
         tempCount = 0
         tempBinId = 0
-        #print(2**logTabLen)
-        #pbar = tqdm(total=2**logTabLen)
-        #bbTT = time.time()
         for ii in range(2**logTabLen):
             tempAddr, binId, eleType, excessOrNot = self.tcpSoc0.receiveMessage().split( )
             if tempBinId==int(binId):
@@ -222,12 +206,6 @@ class SimOBuildClient:
                 tempCount = 1
                 tempBinId = int(binId)
             self.tcpSoc0.sendMessage(str(tempAddr)+" "+str(binId)+" "+str(eleType)+" "+str(excessOrNot))
-            #pbar.update(math.ceil((ii+1)/(2**logTabLen)))
-        #print((self.N,lev,3))
-        #eeTT = time.time()
-        #print(eeTT-bbTT, simOBClient.tcpSoc0.Bandwidth,((simOBClient.tcpSoc0.Rounds)/2))
-        #self.tcpSoc0.Bandwidth = 0
-        #self.tcpSoc0.Rounds = 0
                
         self.bitonicMerge(2**logTabLen,0,2**logTabLen,1,1)
 
@@ -236,9 +214,6 @@ class SimOBuildClient:
         """
         dummyCount = -3
         fillerCount = -sizeEachBin*binNum+dummyCount
-        #print(2*sizeEachBin*binNum)
-        #pbar = tqdm(total=2*sizeEachBin*binNum)
-        #bbTT = time.time()
         for ii in range(2*sizeEachBin*binNum):
             tempHeader = int(self.tcpSoc0.receiveMessage())
             tempTag = self.generateTag(lev,bucketID,self.getEpoch(lev),tempHeader)
@@ -251,35 +226,18 @@ class SimOBuildClient:
             else:
                 tempTag = self.generateTag(lev,bucketID,self.getEpoch(lev),tempHeader)
             self.tcpSoc0.sendMessage(cutils.bytesToStr(tempTag))
-            #pbar.update(math.ceil((ii+1)/(2*sizeEachBin*binNum)))
-        #eeTT = time.time()
-        #print()
-        #print(eeTT-bbTT, simOBClient.tcpSoc0.Bandwidth,((simOBClient.tcpSoc0.Rounds)/2))
-        #self.tcpSoc0.Bandwidth = 0
-        #self.tcpSoc0.Rounds = 0
 
 if __name__=='__main__':
 
-    #data = {'timeOfOBuild':6576072,'bandwidthOfOBuild':540989440,'roundsOfOBuild':3883412}
-    #data = {'timeOfOBuild':116585,'bandwidthOfOBuild':540989440,'roundsOfOBuild':3883412}
-    #pic = open('/home/zxl/local/hORAM/KM19/SimBuildResult/N{}_Lev{}.pkl'.format(2**8,4), 'wb') #open(r'.\Ours\Result\BlockNum_{}.pkl'.format(NN), 'wb')
-    #pickle.dump(data,pic)
-    #pic.close()
-
     NList = [2**10]
-    "Bitonic for 32"
-    timeConsume = 28.106075048446655
-    bandConsume = 7680
-    roundsConsume = 240.0
     for N in NList:
-        "Level is from 0,1,2,...,totalLevelL"
+        "Level is from 0,1,2,...,totalLevelL,maxLevel"
         simOBClient = SimOBuildClient(N)
-        print(1,simOBClient.maxLevel)
         for lev in range(1,simOBClient.maxLevel+1):
-            #simOBClient.tcpSoc0.Bandwidth = 0
-            #simOBClient.tcpSoc0.Rounds = 0
             bucketID = 0
             currentLevelEleNum = (simOBClient.numOfBucketPOneD**(lev-1))*simOBClient.firstBucketSizeK
+            if lev==simOBClient.maxLevel:
+                currentLevelEleNum=simOBClient.N
             tempLevelCipher = simOBClient.generateLevelCipher(lev,simOBClient.getEpoch(lev))
             tempsecretkey0 = tempLevelCipher.encrypt(simOBClient.add_to_16(str(0)+str(bucketID)))
             tempsecretkey1 = tempLevelCipher.encrypt(simOBClient.add_to_16(str(1)+str(bucketID)))
@@ -287,12 +245,12 @@ if __name__=='__main__':
             logTabLen = math.ceil(math.log2(size_each_bin*bin_num_each_table+currentLevelEleNum))
         
             print(bin_num_each_table,size_each_bin,logTabLen)
-            #bTime = time.time()
-            #simOBClient.pOramClientObliviousBuild(lev,bucketID,logTabLen,size_each_bin,bin_num_each_table,tempsecretkey1)
-            #eTime = time.time()
+            bTime = time.time()
+            simOBClient.pOramClientObliviousBuild(lev,bucketID,logTabLen,size_each_bin,bin_num_each_table,tempsecretkey1)
+            eTime = time.time()
 
-            #data = {'timeOfOBuild':eTime-bTime,'bandwidthOfOBuild':simOBClient.tcpSoc0.Bandwidth,'roundsOfOBuild':simOBClient.tcpSoc0.Rounds}
-            #pic = open('/home/zxl/local/hORAM/KM19/SimBuildResult/N{}_LevLev{}.pkl'.format(N,lev), 'wb') #open(r'.\Ours\Result\BlockNum_{}.pkl'.format(NN), 'wb')
-            #pickle.dump(data,pic)
-            #pic.close()
+            data = {'timeOfOBuild':eTime-bTime,'bandwidthOfOBuild':simOBClient.tcpSoc0.Bandwidth,'roundsOfOBuild':simOBClient.tcpSoc0.Rounds/2}
+            pic = open('/home/zxl/local/hORAM/KM19/SimBuildResult/N{}_Lev{}.pkl'.format(N,lev), 'wb') #open(r'.\Ours\Result\BlockNum_{}.pkl'.format(NN), 'wb')
+            pickle.dump(data,pic)
+            pic.close()
         

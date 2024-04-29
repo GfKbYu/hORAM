@@ -1,4 +1,4 @@
-import server2 as server
+import server
 import math
 import random
 import copy
@@ -284,8 +284,6 @@ class tORAMServer:
             self.availS=True
 
         else:
-            
-            print("Reb0")
             tempArray = copy.deepcopy(self.stash0)
             self.stash0 = self.stashInit()
             for ilev in range(2,rebLev,2):
@@ -307,9 +305,6 @@ class tORAMServer:
             for tagKV in tempArray:
                 self.tcpSoc.sendMessage(self.packMToStr(tagKV))
             self.tcpSoc.sendMessage("Done")
-
-            
-            print("Reb1")
 
             if rebLev<self.ellCuckoo:
                 for i in range(len(self.server0Table[rebLev//2])):
@@ -336,9 +331,6 @@ class tORAMServer:
                 self.full[i]=0
             self.full[rebLev]=1
             self.availS=False
-
-            
-            print("Reb2")
 
     def tORAMServerRebuildL(self):
 

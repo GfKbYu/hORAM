@@ -372,14 +372,9 @@ class ORAMClient:
             """
             Overhead
             """
-            tempTime = eTime-bTime
-            tempBandwidth = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
-            tempRounds = max(self.tcpSoc0.Rounds/2,self.tcpSoc1.Rounds/2)
-            print(tempTime,tempBandwidth,tempRounds)
-            data = {'bandwidth':tempBandwidth,'rounds':tempRounds,'time':tempTime}
-            pic = open('/home/zxl/local/hORAM/Ours/Result/OursRebuildL_BlockNum{}_Blockize{}.pkl'.format(NN,BlockSize), 'wb') #open(r'.\Ours\Result\BlockNum_{}.pkl'.format(NN), 'wb')
-            pickle.dump(data,pic)
-            pic.close()
+            self.timeOfRebuild += eTime-bTime
+            self.bandwidthOfRebuild += self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
+            self.roundsOfRebuild += max(self.tcpSoc0.Rounds/2,self.tcpSoc1.Rounds/2)
         elif self.ctr%(2**(self.ell+1)) == 0:
             for j in range(self.ell+1, self.L):
                 if self.full[j-self.ell]==0:
@@ -610,7 +605,7 @@ if __name__=="__main__":
     A = []
     for i in range(NN):
         A.append((i, cutils.getRandomStr(BlockSize)))
-    access_times = NN#2*NN-1#1#len(A)//2 513#
+    access_times = 2*NN-1#1#len(A)//2 513#
 
     coram = ORAMClient(NN, BlockSize, access_times)
     coram.oramClientInitialization(A)

@@ -11,8 +11,8 @@ This is a project for the paper "Efficient Two-server ORAM with Logarithmic Band
     
     `pip install pycryptodomex==3.19.0`
 ## Files
-* ``*ORAMClient.py``: The ORAM core code deployed on the client, which allows the client to adjust the database size, block size, and number of accesses.
-* ``*ORAMServer.py/ORAMServer2.py``: The ORAM core code deployed on two servers.
+* ``*ORAMClient*.py``: The ORAM core code deployed on the client, which allows the client to adjust the database size, block size, and number of accesses.
+* ``*ORAMServer*.py/ORAMServer2*.py``: The ORAM core code deployed on two servers.
 * ``client.py``: The TCP protocol deployed on the client, which allows the client to modify the addresses and ports of the two servers they need to connect to.
 * ``server.py``: The TCP protocol deployed on the two servers.
 * ``*utils.py``: The implementation of some auxiliary functions kept on both the servers and the client, including DPF, read-only PIR, write-only PIR, PRF, etc.

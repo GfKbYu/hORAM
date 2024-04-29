@@ -81,35 +81,32 @@ class SimOBuildServer:
         tempKK = math.ceil(math.log2(len(tempHeaderTable0)))
         while(len(tempHeaderTable0)<2**tempKK):
             tempHeaderTable0.append((SimOBuildServer.FillerElementForm[0],len(rebuildTable[0]),SimOBuildServer.FillerElementFlag,SimOBuildServer.ExcessFlag))
-        #self.bitonicMerge(tempHeaderTable0,0,len(tempHeaderTable0),1)
+        self.bitonicMerge(tempHeaderTable0,0,len(tempHeaderTable0),1)
 
-        print(len(tempHeaderTable0))
         for tempInd in range(len(tempHeaderTable0)):
             self.tcpSoc.sendMessage(str(tempHeaderTable0[tempInd][0])+" "+str(tempHeaderTable0[tempInd][1])+" "+str(tempHeaderTable0[tempInd][2])+" "+str(tempHeaderTable0[tempInd][3]))
             k1,k2,k3,k4 = self.tcpSoc.receiveMessage().split( )
             tempHeaderTable0[tempInd] = (k1,k2,k3,k4)
 
-        #self.bitonicMerge(tempHeaderTable0,0,len(tempHeaderTable0),1)
+        self.bitonicMerge(tempHeaderTable0,0,len(tempHeaderTable0),1)
 
         """
         Oblivious build the second header table
         """
         
-        print(len(tempHeaderTable0)-len(rebuildTable[0][0])*len(rebuildTable[0]))
         for j in range(len(rebuildTable[0][0])*len(rebuildTable[0]),len(tempHeaderTable0)):
             self.tcpSoc.sendMessage(str(tempHeaderTable0[j][0])+" "+str(tempHeaderTable0[j][1])+" "+str(tempHeaderTable0[j][2])+" "+str(tempHeaderTable0[j][3]))
             k1,k2,k3,k4 = self.tcpSoc.receiveMessage().split( )
             tempHeaderTable1.append((k1,k2,k3,k4))
 
         assert len(tempHeaderTable1)==2**tempKK
-        #self.bitonicMerge(tempHeaderTable1,0,len(tempHeaderTable1),1)
-        print(len(tempHeaderTable1))
+        self.bitonicMerge(tempHeaderTable1,0,len(tempHeaderTable1),1)
         for tempInd in range(len(tempHeaderTable1)):
             self.tcpSoc.sendMessage(str(tempHeaderTable1[tempInd][0])+" "+str(tempHeaderTable1[tempInd][1])+" "+str(tempHeaderTable1[tempInd][2])+" "+str(tempHeaderTable1[tempInd][3]))
             k1,k2,k3,k4 = self.tcpSoc.receiveMessage().split( )
             tempHeaderTable1[tempInd] = (k1,k2,k3,k4)
 
-        #self.bitonicMerge(tempHeaderTable1,0,len(tempHeaderTable1),1)
+        self.bitonicMerge(tempHeaderTable1,0,len(tempHeaderTable1),1)
 
         tempHeaderTable0 = tempHeaderTable0[:len(rebuildTable[0][0])*len(rebuildTable[0])]
         tempHeaderTable1 = tempHeaderTable1[:len(rebuildTable[1][0])*len(rebuildTable[1])]
@@ -117,7 +114,6 @@ class SimOBuildServer:
         """
         S0 send the header in table to client and receive the tag
         """
-        print(len(tempHeaderTable0)+len(tempHeaderTable1))
         for i in range(len(tempHeaderTable0)):
             self.tcpSoc.sendMessage(str(tempHeaderTable0[i][0]))
             tempHeaderTable0[i] = self.tcpSoc.receiveMessage() # only receive the tag
@@ -127,13 +123,15 @@ class SimOBuildServer:
             tempHeaderTable1[j] = self.tcpSoc.receiveMessage() # only receive the tag
 
 if __name__=='__main__':
-    NList = [2**8]
+    NList = [2**10]
     for N in NList:
         "Level is from 0,1,2,...,totalLevelL"
         SimOServer = SimOBuildServer()
         for lev in range(1,SimOServer.maxLevel+1):
             bucketID = 0
             currentLevelEleNum = (SimOServer.numOfBucketPOneD**(lev-1))*SimOServer.firstBucketSizeK
+            if lev==SimOServer.maxLevel:
+                currentLevelEleNum=SimOServer.N
             bin_num_each_table,size_each_bin = computeCurrentTabSize(currentLevelEleNum,SimOServer.N)
             logTabLen = math.ceil(math.log2(size_each_bin*bin_num_each_table+currentLevelEleNum))
 

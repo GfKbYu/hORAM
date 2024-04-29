@@ -1,4 +1,4 @@
-import client2 as client
+import client
 import math
 import random
 from Cryptodome.Cipher import AES
@@ -170,7 +170,6 @@ class tORAMClient:
         self.timeOfSetup += eTime-bTime
         self.bandwidthOfSetup += self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
         self.roundsOfSetup += max(self.tcpSoc0.Rounds/2,self.tcpSoc1.Rounds/2)
-        print(self.timeOfSetup)
         self.resetOverhead()
 
     def tORAMClientAccess(self, op, k, writeV):
@@ -183,8 +182,6 @@ class tORAMClient:
         found = False
         foundInWhichStashAndIndex = [-1,-1]
         stashTempIndex = 0
-
-        tempBand0 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
 
         while True: # S0 first
             mess = self.tcpSoc0.receiveMessage()
@@ -208,14 +205,10 @@ class tORAMClient:
                 foundInWhichStashAndIndex = [1,stashTempIndex]
             stashTempIndex += 1
 
-        tempBand1 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
-
-
         for lev in range(2,self.ellCuckoo):
             if self.full[lev]==0:
                 continue
 
-            tempBand10 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
             levKey = self.prfTag(self.levelMasterCipher,lev,self.getEpoch(lev),0)
             if found:
                 tag = self.prfTag(self.prfCipher,lev,self.getEpoch(lev),(str(-1)+str(self.countQ)))
@@ -235,11 +228,7 @@ class tORAMClient:
                 else:
                     self.tcpSocList[lev%2].sendMessage(self.packMToStr(tempTagKV))
 
-            
-            tempBand11 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
-            print(lev)
-            print(tempBand11-tempBand10)
-            print()
+
         for lev in range(self.ellCuckoo, self.maxLevel+1):
             if self.full[lev]==0:
                 continue
@@ -272,20 +261,11 @@ class tORAMClient:
             else:
                 self.tcpSocList[lev%2].sendMessage(self.packMToStr(tempTagKV1))
 
-            
-            tempBand21 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
-            print(lev)
-            print(tempBand21-tempBand20)
-            print()
-
         retrunEle = (retrievedEle[0],retrievedEle[1],retrievedEle[2])
         if op=='w':
             retrievedEle = (retrievedEle[0],retrievedEle[1],writeV)
 
         stashInd = 0
-        
-
-        tempBand2 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
 
         while True: # S0 first
             mess = self.tcpSoc0.receiveMessage()
@@ -320,10 +300,6 @@ class tORAMClient:
         self.countQ += 1
         
         eTime = time.time()
-
-        tempBand3 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
-
-        print(tempBand1-tempBand0+tempBand3-tempBand2)
 
         """
         Overhead of Access
@@ -361,7 +337,6 @@ class tORAMClient:
     def tORAMClientRebuild(self, rebLev):
         sa = 1^(rebLev%2)
         sb = 1^sa
-        tempBand1 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
         while True:
             mess = self.tcpSocList[sa].receiveMessage()
             if mess=="Done":
@@ -369,10 +344,6 @@ class tORAMClient:
                 break
             tagKV = self.unpackStrToM(mess)
             self.tcpSocList[sb].sendMessage(self.packMToStr(tagKV))
-
-        
-        tempBand2 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
-        #print(tempBand2-tempBand1)
 
         rebLevKey = self.prfTag(self.levelMasterCipher,rebLev,self.getEpoch(rebLev),0)
         self.tcpSocList[sa].sendMessage(tutils.bytesToStr(rebLevKey))
@@ -391,10 +362,6 @@ class tORAMClient:
             
         elementNumInStash = int(self.tcpSocList[sa].receiveMessage())
 
-        
-        tempBand3 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
-        #print(tempBand3-tempBand2)
-
         """
         Receive table element and send to S0
         """
@@ -409,9 +376,6 @@ class tORAMClient:
                 elementNumInStash -= 1
             self.tcpSocList[sb].sendMessage(self.packMToStr((tmp_tag,tmp_k,tmp_v)))
 
-
-        tempBand4 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
-        #print(tempBand4-tempBand3)
         """
         Stash element then
         """
@@ -429,9 +393,6 @@ class tORAMClient:
         self.full[rebLev]=1
         self.availStash=sa
 
-        
-        tempBand5 = self.tcpSoc0.Bandwidth+self.tcpSoc1.Bandwidth
-        #print(tempBand5-tempBand4)
         
     def tORAMClientRebuildL(self):
         """
@@ -543,15 +504,13 @@ class tORAMClient:
 if __name__=="__main__":
     random.seed(1)
     BlockSize = 2**5
-    NN = 2**14
+    NN = 2**10
     A = []
     for i in range(NN):
         A.append((i, tutils.getRandomStr(BlockSize)))
-    #print(A)
-    access_times = 1#NN#2*NN-1#1#len(A)//2 513#
+    access_times = 2*NN-1#1#len(A)//2 513#
     coram = tORAMClient(NN,BlockSize,access_times)
     coram.tORAMClientInitialization(A)
-    print(coram.maxLevel)
     OP = ["w", "r"]
     error_times = 0
     pbar = tqdm(total=access_times)
@@ -567,10 +526,7 @@ if __name__=="__main__":
             A[index]=(k,v)
         pbar.update(math.ceil((i+1)/(access_times)))
 
-        
     pbar.close()
-    print(error_times)
-    print(coram.timeOfAccess)
     coram.tcpSoc0.closeConnection()
     coram.tcpSoc1.closeConnection()
     

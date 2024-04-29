@@ -361,13 +361,13 @@ class pORAMClient:
         """
         self.accessTimes += 1
         if self.accessTimes%(self.firstBucketSizeK*(self.numOfBucketPOneD**self.totalLevelL))==0:
-            #print("RebuildLevel:{}".format(self.maxLevel))
+            print("RebuildLevel:{}".format(self.maxLevel))
             self.pOramClientRebuildMaxLevel()
         else:
             for i in range(self.totalLevelL,0,-1):
                 if self.accessTimes%(self.firstBucketSizeK*(self.numOfBucketPOneD**(i-1)))==0:
                     bucID = (self.accessTimes//(self.firstBucketSizeK*(self.numOfBucketPOneD**(i-1))))%self.numOfBucketPOneD
-                    #print("RebuildLevel:{},{}".format(i,bucID))
+                    print("RebuildLevel:{},{}".format(i,bucID))
                     self.pOramClientRebuild(i,bucID)
                     break
 
@@ -587,7 +587,7 @@ class pORAMClient:
 if __name__=="__main__":
     random.seed(1)
     blockSize = 2**5
-    N = 2**14
+    N = 2**10
     A = []
     for i in range(N):
         A.append((i,cutils.getRandomStr(blockSize)))

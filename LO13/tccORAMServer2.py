@@ -1,4 +1,4 @@
-import server2 as server
+import server
 import math
 import random
 import copy
@@ -201,7 +201,6 @@ class tORAMServer:
 
     def tORAMServerRebuild(self, rebLev):
         if rebLev>>1<<1==rebLev:
-            print("Reb0")
             tempArray = copy.deepcopy(self.stash1)
             self.stash1 = self.stashInit()
             for ilev in range(3,rebLev,2):
@@ -219,9 +218,6 @@ class tORAMServer:
             for tagKV in tempArray:
                 self.tcpSoc.sendMessage(self.packMToStr(tagKV))
             self.tcpSoc.sendMessage("Done")
-
-            
-            print("Reb1")
 
             rebLevKey = tutils.strToBytes(self.tcpSoc.receiveMessage())
             
@@ -280,7 +276,6 @@ class tORAMServer:
             self.full[rebLev]=1
             self.availS=True
             
-            print("Reb2")
         else:
             tempArray = copy.deepcopy(self.stash1)
             self.stash1 = self.stashInit()

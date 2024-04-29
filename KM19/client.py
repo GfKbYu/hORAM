@@ -8,9 +8,9 @@ Aliyun: 8.130.121.76
 TencentCloud: 43.143.163.4
 """
 Addr0 = "43.143.209.19"
-Port0 = 6000
+Port0 = 4000
 Addr1 = "101.42.30.218"
-Port1 = 6000
+Port1 = 4000
 
 class tcpClient:
 
