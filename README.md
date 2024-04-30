@@ -1,5 +1,5 @@
 ## Introduction
-This is a project for the paper "Efficient Two-server ORAM with Logarithmic Bandwidth and Constant Storage Cost". This project also implements the state-of-the-art [LO13](https://eprint.iacr.org/2011/384.pdf), [GKW18](https://eprint.iacr.org/2018/005.pdf), and [KM19](https://arxiv.org/pdf/1802.05145.pdf).
+This is a project for the paper "Efficient Two-server ORAM for Resource-Constrained Clients". This project also implements the state-of-the-art [LO13](https://eprint.iacr.org/2011/384.pdf), [GKW18](https://eprint.iacr.org/2018/005.pdf), and [KM19](https://arxiv.org/pdf/1802.05145.pdf).
 ## Prerequisites
 1. Ubuntu 20.04.6 operating system.
 2. Python version 3.9.13 installed on your local and server machines.
